@@ -87,6 +87,22 @@ print('circular log likelihood: ' + str(log_likelihood_circular))
 print('eccentric log likelihood: ' + str(log_likelihood_eccentric))
 print('ratio: ' + str(log_likelihood_eccentric - log_likelihood_circular))
 
+# Test
+
+e, average_log_likelihood, log_weight = rwt.new_weight(
+    log_likelihood_eccentric,
+    injection_parameters,
+    comparison_waveform_frequency_domain,
+    interferometers,
+    duration,
+    sampling_frequency,
+    maximum_frequency,
+    'test',
+)
+
+print('eccentricity-maginalised log likelihood: ' + str(average_log_likelihood))
+print('eccentricity: ' + str(e))
+print('log weight: ' + str(log_weight))
 '''
 # Save the interferometer data
 label = 'circular'
