@@ -88,21 +88,35 @@ print('eccentric log likelihood: ' + str(log_likelihood_eccentric))
 print('ratio: ' + str(log_likelihood_eccentric - log_likelihood_circular))
 
 # Test
-
-e, average_log_likelihood, log_weight = rwt.new_weight(
-    log_likelihood_eccentric,
+fig = plt.figure()
+bin_number = 20
+max_ecc = 0.2
+for minimum_log_eccentricity in [-4, -3, -2, -1]:
+    e, average_log_likelihood, log_weight, log_likelihood_grid = rwt.new_weight(
+    log_likelihood_circular,
     injection_parameters,
     comparison_waveform_frequency_domain,
     interferometers,
     duration,
     sampling_frequency,
     maximum_frequency,
-    'test',
+    str(minimum_log_eccentricity),
+    minimum_log_eccentricity=minimum_log_eccentricity,
+    number_of_eccentricity_bins=bin_number
 )
 
-print('eccentricity-maginalised log likelihood: ' + str(average_log_likelihood))
-print('eccentricity: ' + str(e))
-print('log weight: ' + str(log_weight))
+    print('eccentricity-maginalised log likelihood: ' + str(average_log_likelihood))
+    print('eccentricity: ' + str(e))
+    print('log weight: ' + str(log_weight))
+
+    plt.semilogx(np.logspace(minimum_log_eccentricity, max_ecc, bin_number), log_likelihood_grid,
+                 label='minimum_log_ecc='+str(minimum_log_eccentricity))
+
+plt.xlabel('eccentricity')
+plt.ylabel('log likelihood')
+plt.legend()
+plt.savefig('likelihood_granularity_problem.png', bbox_inches='tight')
+plt.show()
 '''
 # Save the interferometer data
 label = 'circular'
