@@ -128,11 +128,7 @@ def pick_weighted_random_eccentricity(cumulative_density_grid, eccentricity_grid
     # First select a bin, weighted at random
     start = cumulative_density_grid[0]
     end = cumulative_density_grid[-1]
-    print()
-    print('start: ' + str(start))
-    print('end: ' + str(end))
     random_value = random.random_sample() * (end - start) + start
-    print('random value: ' + str(random_value))
     for i, cd in enumerate(cumulative_density_grid):
         if cd >= random_value:
             # Now select an eccentricity at random from within the selected bin
@@ -140,14 +136,9 @@ def pick_weighted_random_eccentricity(cumulative_density_grid, eccentricity_grid
             upper_bound = eccentricity_grid[i]
             if i > 0:
                 lower_bound = eccentricity_grid[i - 1]
-            print('lower bound: ' + str(lower_bound))
-            print('upper bound: ' + str(upper_bound))
-
             random_eccentricity = (
                 random.random_sample() * (upper_bound - lower_bound) + lower_bound
             )
-            print('random eccentricity: ' + str(random_eccentricity))
-            print()
             return random_eccentricity
 
 
