@@ -128,7 +128,11 @@ def pick_weighted_random_eccentricity(cumulative_density_grid, eccentricity_grid
     # First select a bin, weighted at random
     start = cumulative_density_grid[0]
     end = cumulative_density_grid[-1]
+    print()
+    print('start: ' + str(start))
+    print('end: ' + str(end))
     random_value = random.random_sample() * (end - start) + start
+    print('random value: ' + str(random_value))
     for i, cd in enumerate(cumulative_density_grid):
         if cd >= random_value:
             # Now select an eccentricity at random from within the selected bin
@@ -136,9 +140,14 @@ def pick_weighted_random_eccentricity(cumulative_density_grid, eccentricity_grid
             upper_bound = eccentricity_grid[i]
             if i > 0:
                 lower_bound = eccentricity_grid[i - 1]
+            print('lower bound: ' + str(lower_bound))
+            print('upper bound: ' + str(upper_bound))
+
             random_eccentricity = (
                 random.random_sample() * (upper_bound - lower_bound) + lower_bound
             )
+            print('random eccentricity: ' + str(random_eccentricity))
+            print()
             return random_eccentricity
 
 
@@ -152,7 +161,6 @@ def cumulative_density_function(log_likelihood_grid):
         1D grid of cumulative densities
     """
     # IRS - (temporary?) edits to deal with extremely high values of log likelihood
-    minimum_log_likelihood = np.min(log_likelihood_grid)
     maximum_log_likelihood = np.max(log_likelihood_grid)
     # Ratio of likelihood to maximum log likelihood
     log_likelihood_grid = log_likelihood_grid - maximum_log_likelihood
@@ -171,6 +179,8 @@ def new_weight(
     sampling_frequency,
     maximum_frequency,
     label,
+    minimum_log_eccentricity=-4,
+    number_of_eccentricity_bins=20
 ):
     """
     Compute the new weight for a point, weighted by the eccentricity-marginalised likelihood.
@@ -201,9 +211,9 @@ def new_weight(
             the log weight of the sample
     """
     # First calculate a grid of likelihoods.
-    grid_size = 20
+    grid_size = number_of_eccentricity_bins
     eccentricity_grid = np.logspace(
-        np.log10(minimum_eccentricity), np.log10(0.2), grid_size
+        minimum_log_eccentricity, np.log10(0.2), grid_size
     )
     # Recalculate the log likelihood of the original sample
     recalculated_log_likelihood = log_likelihood_ratio(
@@ -280,7 +290,7 @@ def new_weight(
         average_log_likelihood = np.mean(log_likelihood_grid)
         # The weight is the ratio of this to the log likelihood
         log_weight = average_log_likelihood - recalculated_log_likelihood
-        return e, average_log_likelihood, log_weight
+        return e, average_log_likelihood, log_weight, log_likelihood_grid
     else:
         return None, None, None
 
