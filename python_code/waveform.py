@@ -56,6 +56,7 @@ def seobnre_bbh_with_spin_and_eccentricity(
     """
     make = ["make"]
     c_code = "/home/isobel.romero-shaw/public_html/PYCENTRICITY/pycentricity/c_code/"
+    #c_code = "/Users/irom0001/eccentricity/SEOBNRE/pycentricity/c_code/"
     phiRef = parameters["phase"]
     m1 = parameters["mass_1"]
     m2 = parameters["mass_2"]
@@ -125,13 +126,14 @@ def seobnre_bbh_with_spin_and_eccentricity(
             ["rm", outfile_name], cwd=c_code, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
     except FileNotFoundError:
+        print('FileNotFoundError')
         t = None
         seobnre = None
     return t, seobnre
 
 
 def get_IMRPhenomD_comparison_waveform_generator(
-    minimum_frequency, sampling_frequency, duration
+    minimum_frequency, sampling_frequency, duration, maximum_frequency=1024
 ):
     """
     Provide the waveform generator object for the comparison waveform, IMRPhenomD.
@@ -150,6 +152,38 @@ def get_IMRPhenomD_comparison_waveform_generator(
         waveform_approximant=waveform_approximant,
         reference_frequency=minimum_frequency,
         minimum_frequency=minimum_frequency,
+        maximum_frequency=maximum_frequency
+    )
+    waveform_generator = bb.gw.WaveformGenerator(
+        duration=duration,
+        sampling_frequency=sampling_frequency,
+        frequency_domain_source_model=bb.gw.source.lal_binary_black_hole,
+        parameter_conversion=bb.gw.conversion.convert_to_lal_binary_black_hole_parameters,
+        waveform_arguments=waveform_arguments,
+    )
+    return waveform_generator
+
+def get_comparison_waveform_generator(
+    minimum_frequency, sampling_frequency, duration,
+        maximum_frequency=1024, waveform_approximant="SEOBNRv1"
+):
+    """
+    Provide the waveform generator object for the comparison waveform.
+    :param minimum_frequency: int
+        minimum frequency to contain in the waveform
+    :param sampling_frequency: int
+        frequency with which to 'sample' the signal
+    :param duration: int
+        time duration of the signal
+    :return:
+        waveform_generator: WaveformGenerator
+            the waveform generator object for the comparison waveform
+    """
+    waveform_arguments = dict(
+        waveform_approximant=waveform_approximant,
+        reference_frequency=minimum_frequency,
+        minimum_frequency=minimum_frequency,
+        maximum_frequency=maximum_frequency
     )
     waveform_generator = bb.gw.WaveformGenerator(
         duration=duration,
