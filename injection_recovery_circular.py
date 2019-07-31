@@ -3,16 +3,34 @@ import bilby as bb
 import python_code.waveform as wf
 import python_code.overlap as ovlp
 import numpy as np
+import argparse
+
+# Set up the argument parser
+parser = argparse.ArgumentParser("")
+parser.add_argument("-a", "--approximant", help="The name of the waveform approximant to recover with")
+parser.add_argument("--snr", help='the required snr of the signal')
+args = parser.parse_args()
+
+snr = args.snr
+waveform_approximant = args.approximant
 
 np.random.seed(5432)
-outdir = '/home/isobel.romero-shaw/public_html/PYCENTRICITY/pycentricity/injection_recovery_output/circular_1/'
-label = 'circular_injection_1'
+label = 'circular_injection_SNR_' + snr + '_' + waveform_approximant
+outdir = '/home/isobel.romero-shaw/public_html/PYCENTRICITY/pycentricity/injection_recovery_output/' + label + '/'
+
+bb.core.utils.check_directory_exists_and_if_not_mkdir(outdir)
+
+required_distance = {
+    '25': 875.0,
+    '16': 1375.0
+}
+
 # injection parameters
 injection_parameters = dict(
     mass_1=35.0,
     mass_2=30.0,
     eccentricity=0.0,
-    luminosity_distance=440.0,
+    luminosity_distance=required_distance[snr],
     theta_jn=0.4,
     psi=0.1,
     phase=1.2,
@@ -24,20 +42,21 @@ injection_parameters = dict(
 )
 # Frequency settings
 minimum_frequency = 20
-maximum_frequency = 2048
+maximum_frequency = 1024
 sampling_frequency = 4096
 duration = 8
 deltaT = 0.2
 
 # Comparison waveform
-comparison_waveform_generator = wf.get_IMRPhenomD_comparison_waveform_generator(
-    minimum_frequency, sampling_frequency, duration
+comparison_waveform_generator = wf.get_comparison_waveform_generator(
+    minimum_frequency, sampling_frequency, duration, maximum_frequency=maximum_frequency,
+    waveform_approximant=waveform_approximant
 )
 comparison_waveform_frequency_domain = comparison_waveform_generator.frequency_domain_strain(
     injection_parameters
 )
 # Interferometers
-interferometers = bb.gw.detector.InterferometerList(["H1", "L1", "V1"])
+interferometers = bb.gw.detector.InterferometerList(["H1", "L1"])
 interferometers.set_strain_data_from_power_spectral_densities(
     sampling_frequency=sampling_frequency,
     duration=duration,
@@ -82,15 +101,15 @@ priors['mass_ratio'] = bb.core.prior.Uniform(name='mass_ratio', minimum=0.125, m
 priors['chirp_mass'] = bb.core.prior.Uniform(name='chirp_mass', minimum=9.0, maximum=69.9, unit='$M_{\\odot}$', boundary='reflective')
 # eccentricity = LogUniform(name='eccentricity', minimum=1e-4, maximum=0.2, boundary='reflective')
 priors["chi_1"] = bb.gw.prior.AlignedSpin(
-    a_prior=bb.gw.prior.Uniform(0, 0.6),
-    z_prior=bb.gw.prior.Uniform(-1, 1),
+    a_prior=bb.gw.prior.Uniform(0, 1),
+    z_prior=bb.gw.prior.Uniform(-1, 0.6),
     name="chi_1",
     latex_label="$\\chi_1$",
     boundary="reflective",
 )
 priors["chi_2"] = bb.gw.prior.AlignedSpin(
-    a_prior=bb.gw.prior.Uniform(0, 0.6),
-    z_prior=bb.gw.prior.Uniform(-1, 1),
+    a_prior=bb.gw.prior.Uniform(0, 1),
+    z_prior=bb.gw.prior.Uniform(-1, 0.6),
     name="chi_2",
     latex_label="$\\chi_2$",
     boundary="reflective",

@@ -10,23 +10,27 @@ import argparse
 # Set up the argument parser
 parser = argparse.ArgumentParser("")
 parser.add_argument("-i", "--index", help="")
+parser.add_argument("-s", "--subsets_dir", help="")
+parser.add_argument("-d", "injection_data", help="")
+parser.add_argument("--H1-strain-data", help="")
+parser.add_argument("--L1-strain-data", help="")
 args = parser.parse_args()
 
-np.random.seed(54321)
-result_dir = '/home/isobel.romero-shaw/public_html/PYCENTRICITY/pycentricity/injection_recovery_output/circular/subsets/'
-weights_dir = '/home/isobel.romero-shaw/public_html/PYCENTRICITY/pycentricity/injection_recovery_output/circular/weights/'
-injection_data_dir = '/home/isobel.romero-shaw/public_html/PYCENTRICITY/pycentricity/injection_data/'
+np.random.seed(5432)
+result_dir = args.subsets_dir
+injection_data_dict = {
+    'H1': args.H1_strain_data,
+    'L1': args.L1_strain_data
+}
 
 # Frequency settings
 minimum_frequency = 20
-maximum_frequency = 2046
+maximum_frequency = 1024
 sampling_frequency = 4096
 duration = 8
 geocent_time = 0
 start_time = geocent_time - duration + 2
 deltaT = 0.2
-
-label = 'circular'
 
 # Comparison waveform
 comparison_waveform_generator = wf.get_IMRPhenomD_comparison_waveform_generator(
@@ -37,7 +41,7 @@ comparison_waveform_generator = wf.get_IMRPhenomD_comparison_waveform_generator(
 # Interferometers
 interferometers = bb.gw.detector.InterferometerList(["H1", "L1"])
 for ifo in interferometers:
-    data_file = injection_data_dir + label + '_' + ifo.name + '_frequency_domain_strain_data.csv'
+    data_file = injection_data_dict[ifo.name]
     ifo.strain_data._times_and_frequencies = \
         bb.core.series.CoupledTimeAndFrequencySeries(duration=duration,
                                                      sampling_frequency=sampling_frequency,
@@ -62,9 +66,6 @@ json_data = json.load(open(sub_result))
 samples = json_data["samples"]
 samples = {key: pd.DataFrame(samples[key]) for key in samples.keys()}
 log_likelihoods = json_data["log_likelihoods"]
-
-# Make the weights folder
-bb.core.utils.check_directory_exists_and_if_not_mkdir(weights_dir)
 
 # Output to the folder with all of the result subsets
 folder_list = sub_result.split("/")
