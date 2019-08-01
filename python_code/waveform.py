@@ -55,8 +55,8 @@ def seobnre_bbh_with_spin_and_eccentricity(
             time-domain waveform polarisations
     """
     make = ["make"]
-    c_code = "/home/isobel.romero-shaw/public_html/PYCENTRICITY/pycentricity/c_code/"
-    #c_code = "/Users/irom0001/eccentricity/SEOBNRE/pycentricity/c_code/"
+    #c_code = "/home/isobel.romero-shaw/public_html/PYCENTRICITY/pycentricity/c_code/"
+    c_code = "/Users/irom0001/eccentricity/SEOBNRE/pycentricity/c_code/"
     phiRef = parameters["phase"]
     m1 = parameters["mass_1"]
     m2 = parameters["mass_2"]
@@ -126,7 +126,11 @@ def seobnre_bbh_with_spin_and_eccentricity(
             ["rm", outfile_name], cwd=c_code, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
     except FileNotFoundError:
-        print('FileNotFoundError')
+        print('ERROR :: FileNotFoundError')
+        print('Could not find file for parameters:')
+        print("m1: {}\nm2: {}\nd_L: {}\nphi: {}\ne: {}\ni: {}\ns1z: {}\ns2z: {}\ntime: {}".format(
+        m1, m2, distance, phiRef, e0, inclination, s1z, s2z, time.clock()
+    ))
         t = None
         seobnre = None
     return t, seobnre
