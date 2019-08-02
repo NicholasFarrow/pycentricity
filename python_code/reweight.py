@@ -187,8 +187,6 @@ def new_weight(
         time duration of the signal
     :param sampling_frequency: int
         the frequency with which to 'sample' the waveform
-    :param minimum_frequency: int
-        the minimum frequency at which the data is analysed
     :param maximum_frequency: int
         the maximum frequency at which the data is analysed
     :param label: str

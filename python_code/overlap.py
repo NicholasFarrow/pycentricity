@@ -364,8 +364,6 @@ def maximise_overlap(
     waveform_time_domain,
     comparison_waveform_frequency_domain,
     sampling_frequency,
-    minimum_frequency,
-    maximum_frequency,
     frequency_array,
     PSD,
 ):
@@ -425,10 +423,6 @@ def maximise_overlap(
     waveform_frequency_domain = fourier_transform(
         waveform_time_domain, sampling_frequency
     )
-    # Zero-pad frequency domain signal
-    # waveform_frequency_domain = zero_pad_frequency_domain_signal(
-    #     waveform_frequency_domain, minimum_frequency, maximum_frequency, frequency_array
-    # )
     # Now compute initial overlap
     maximum_overlap = overlap_function(
         comparison_waveform_frequency_domain,
@@ -493,9 +487,6 @@ def maximise_overlap(
     waveform_time_domain, waveform_frequency_domain = apply_shifts(
         waveform_time_domain, time_shift, phase_shift, sampling_frequency, frequency_array
     )
-    # waveform_frequency_domain = zero_pad_frequency_domain_signal(
-    #     waveform_frequency_domain, minimum_frequency, maximum_frequency, frequency_array
-    # )
     return (
         waveform_time_domain,
         waveform_frequency_domain,
