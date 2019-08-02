@@ -82,7 +82,6 @@ seobnre_wf_td, seobnre_wf_fd, max_overlap, index_shift, phase_shift = ovlp.maxim
 )
 print('maximum overlap: ' + str(max_overlap))
 
-seobnre_wf_fd = ovlp.zero_pad_frequency_domain_signal(seobnre_wf_fd, interferometers)
 # Inject the signal
 interferometers.inject_signal(
     parameters=injection_parameters, injection_polarizations=seobnre_wf_fd
