@@ -114,6 +114,23 @@ def log_likelihood_ratio(waveform_polarizations, interferometers, parameters, du
     ) - noise_log_likelihood(interferometers, duration)
 
 
+def calculate_log_weight(eccentric_log_likelihood_array, circular_log_likelihood):
+    """
+    Return the log weight for the sample with the passed-in eccentric likelihood array.
+    :param eccentric_log_likelihood_array: array/list
+        list of eccentric log-likelihoods
+    :param circular_log_likelihood: float
+        value of the circular log-likelihood
+    :return:
+        average_log_weight: float
+            the log weight for the sample
+    """
+    individual_log_weight = [ll - circular_log_likelihood for ll in eccentric_log_likelihood_array]
+    average_weight = np.mean(np.exp(individual_log_weight))
+    average_log_weight = np.log(average_weight)
+    return average_log_weight
+
+
 def pick_weighted_random_eccentricity(cumulative_density_grid, eccentricity_grid):
     """
     Return a random eccentricity, weighted by a cumulative density function.
@@ -216,10 +233,10 @@ def new_weight(
                 percentage
             )
         )
-        print('original log L: ' + str(log_L))
-        print('recalculated log L: ' + str(recalculated_log_likelihood))
+        print('original log L: {}'.format(log_L))
+        print('recalculated log L: {}'.format(recalculated_log_likelihood))
     log_likelihood_grid = []
-    intermediate_outfile = open(label + "_eccentricity_result.txt", "w")
+    intermediate_outfile = open("{}_eccentricity_result.txt".format(label), "w")
     intermediate_outfile.write("sample parameters:\n")
     for key in parameters.keys():
         intermediate_outfile.write(key + ":\t" + str(parameters[key]) + "\n")
@@ -237,14 +254,9 @@ def new_weight(
             maximum_frequency=maximum_frequency + 1000,
         )
         if t is None:
-            print('No waveform generated; disregard sample ' + label)
+            print('No waveform generated; disregard sample {}'.format(label))
             intermediate_outfile.write(
-                str(e)
-                + "\t\t"
-                + str(None)
-                + "\t\t"
-                + str(None)
-                + "\n"
+                "{}\t\t{}\t\t{}\n".format(e, None, None)
             )
             disregard = True
         else:
@@ -255,30 +267,22 @@ def new_weight(
                 interferometers[0].frequency_array,
                 interferometers[0].power_spectral_density,
             )
-            seobnre_wf_fd = ovlp.zero_pad_frequency_domain_signal(
-                seobnre_wf_fd, interferometers
-            )
             eccentric_log_L = log_likelihood_ratio(
                 seobnre_wf_fd, interferometers, parameters, duration
             )
             log_likelihood_grid.append(eccentric_log_L)
             intermediate_outfile.write(
-                str(e)
-                + "\t\t"
-                + str(eccentric_log_L)
-                + "\t\t"
-                + str(max_overlap)
-                + "\n"
+                "{}\t\t{}\t\t{}\n".format(e, eccentric_log_L, max_overlap)
             )
     intermediate_outfile.close()
     if not disregard:
         cumulative_density_grid = cumulative_density_function(log_likelihood_grid)
         # We want to pick a weighted random point from within the CDF
         e = pick_weighted_random_eccentricity(cumulative_density_grid, eccentricity_grid)
-        # Also return eccentricity-marginalised log-likelihood
+        # Also return average log-likelihood
         average_log_likelihood = np.mean(log_likelihood_grid)
-        # The weight is the ratio of this to the log likelihood
-        log_weight = average_log_likelihood - recalculated_log_likelihood
+        # Weight calculated using average likelihood
+        log_weight = calculate_log_weight(log_likelihood_grid, recalculated_log_likelihood)
         return e, average_log_likelihood, log_weight, log_likelihood_grid
     else:
         return None, None, None
@@ -391,14 +395,7 @@ def reweight_by_eccentricity(
                 output_folder + "/" + label + "_" + str(i),
             )
             outfile.write(
-                str(i)
-                + "\t\t"
-                + str(eccentricity)
-                + "\t\t"
-                + str(new_log_L)
-                + "\t\t"
-                + str(log_weight)
-                + "\n"
+                "{}\t\t{}\t\t{}\t\t{}\n".format(i, eccentricity, new_log_L, log_weight)
             )
             output["eccentricity"].append(eccentricity)
             output["new_log_L"].append(new_log_L)
