@@ -3,8 +3,55 @@
 A file containing utility functions and related objects for the pySEOBNRe package.
 
 """
+import numpy as np
+import matplotlib.pyplot as plt
+import corner
+
+
+def get_data(data_list):
+    return np.transpose(np.vstack(data_list))
+
+
+def plot_reweighted_posteriors(posterior, weights, label):
+    parameters = [posterior[parameter] for parameter in parameter_keys.keys()]
+    labels = [parameter_keys[parameter] for parameter in parameter_keys.keys()]
+    # First compare unweighted to weighted
+    figure = corner.corner(get_data(parameters), labels=labels, bins=20, smooth=0.9, label_kwargs=dict(fontsize=12),
+                           titles=True,
+                           title_kwargs=dict(fontsize=16), color='#0072C1', quantiles=[0.16, 0.84],
+                           levels=(1 - np.exp(-0.5), 1 - np.exp(-2), 1 - np.exp(-9 / 2.)),
+                           hist_kwargs=dict(density=True),
+                           plot_density=False, plot_datapoints=True, fill_contours=True, label='unweighted',
+                           max_n_ticks=3)
+    corner.corner(get_data(parameters), weights=weights, bins=20, labels=labels, fig=figure, smooth=0.9,
+                  label_kwargs=dict(fontsize=12), titles=True,
+                  title_kwargs=dict(fontsize=16), color='#FF8C00', quantiles=[0.16, 0.84],
+                  hist_kwargs=dict(density=True),
+                  levels=(1 - np.exp(-0.5), 1 - np.exp(-2), 1 - np.exp(-9 / 2.)),
+                  plot_density=False, plot_datapoints=True, fill_contours=True, label='weighted',
+                  max_n_ticks=3)
+    for ax in figure.get_axes():
+        ax.tick_params(axis='both', labelsize=10)
+    plt.legend()
+    plt.savefig(label + "_corner.png")
+    plt.clf()
+
 
 psd_files_base_path = "/home/isobel.romero-shaw/lvc_pe_sample_release/"
+
+parameter_keys = dict(
+    chirp_mass='$\mathcal{M}$',
+    mass_ratio='$q$',
+    luminosity_distance='$d_L$',
+    ra='RA',
+    dec='DEC',
+    chi_1='$\chi_1$',
+    chi_2='$\chi_2$',
+    theta_jn='$\\theta_{jn}$',
+    phase='$\phi$',
+    psi='$\psi$',
+    geocent_time='$t_{geo}$'
+)
 
 trigger_time = dict(
     GW150914=1126259462.391,
