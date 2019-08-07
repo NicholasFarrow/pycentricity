@@ -12,18 +12,20 @@ def get_data(data_list):
     return np.transpose(np.vstack(data_list))
 
 
-def plot_reweighted_posteriors(posterior, weights, label):
+def plot_reweighted_posteriors(posterior, new_weights, label, original_weights=None):
+    if original_weights is None:
+        original_weights = [1] * len(new_weights)
     parameters = [posterior[parameter] for parameter in parameter_keys.keys()]
     labels = [parameter_keys[parameter] for parameter in parameter_keys.keys()]
     # First compare unweighted to weighted
-    figure = corner.corner(get_data(parameters), labels=labels, bins=20, smooth=0.9, label_kwargs=dict(fontsize=12),
+    figure = corner.corner(get_data(parameters), weights=original_weights, labels=labels, bins=20, smooth=0.9, label_kwargs=dict(fontsize=12),
                            titles=True,
                            title_kwargs=dict(fontsize=16), color='#0072C1', quantiles=[0.16, 0.84],
                            levels=(1 - np.exp(-0.5), 1 - np.exp(-2), 1 - np.exp(-9 / 2.)),
                            hist_kwargs=dict(density=True),
                            plot_density=False, plot_datapoints=True, fill_contours=True, label='unweighted',
                            max_n_ticks=3)
-    corner.corner(get_data(parameters), weights=weights, bins=20, labels=labels, fig=figure, smooth=0.9,
+    corner.corner(get_data(parameters), weights=new_weights, bins=20, labels=labels, fig=figure, smooth=0.9,
                   label_kwargs=dict(fontsize=12), titles=True,
                   title_kwargs=dict(fontsize=16), color='#FF8C00', quantiles=[0.16, 0.84],
                   hist_kwargs=dict(density=True),
@@ -32,7 +34,6 @@ def plot_reweighted_posteriors(posterior, weights, label):
                   max_n_ticks=3)
     for ax in figure.get_axes():
         ax.tick_params(axis='both', labelsize=10)
-    plt.legend()
     plt.savefig(label + "_corner.png")
     plt.clf()
 
