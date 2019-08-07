@@ -10,38 +10,43 @@ import argparse
 # Set up the argument parser
 parser = argparse.ArgumentParser("")
 parser.add_argument("-i", "--index", help="")
-parser.add_argument("-s", "--subsets_dir", help="")
-parser.add_argument("-d", "injection_data", help="")
-parser.add_argument("--H1-strain-data", help="")
-parser.add_argument("--L1-strain-data", help="")
+parser.add_argument("-e", "--eccentricity", help="The eccentricity of the injection")
+parser.add_argument("-s", "--snr", help="The snr of the injection")
+parser.add_argument("-r", "--results", help="The location of the result subsets")
 args = parser.parse_args()
 
+# Read in the arguments
+eccentricity = args.eccentricity
+index = args.index
+snr = args.snr
+results_dir = args.results
+
 np.random.seed(5432)
-result_dir = args.subsets_dir
-injection_data_dict = {
-    'H1': args.H1_strain_data,
-    'L1': args.L1_strain_data
-}
+injection_data_dir = 'injection_data/'
 
 # Frequency settings
 minimum_frequency = 20
-maximum_frequency = 1024
+reference_frequency = 20
+maximum_frequency = 2046
 sampling_frequency = 4096
 duration = 8
 geocent_time = 0
 start_time = geocent_time - duration + 2
 deltaT = 0.2
 
+label = 'circular_snr_{}'.format(snr)
+if eccentricity == '0.1':
+    label = label.replace('circular', 'eccentric')
+
 # Comparison waveform
 comparison_waveform_generator = wf.get_IMRPhenomD_comparison_waveform_generator(
     minimum_frequency, sampling_frequency, duration
 )
 
-
 # Interferometers
 interferometers = bb.gw.detector.InterferometerList(["H1", "L1"])
 for ifo in interferometers:
-    data_file = injection_data_dict[ifo.name]
+    data_file = injection_data_dir + label + '_' + ifo.name + '_frequency_domain_strain_data.csv'
     ifo.strain_data._times_and_frequencies = \
         bb.core.series.CoupledTimeAndFrequencySeries(duration=duration,
                                                      sampling_frequency=sampling_frequency,
@@ -61,7 +66,7 @@ for ifo in interferometers:
     ifo.maximum_frequency = maximum_frequency
 
 # Access the samples
-sub_result = result_dir + 'result_' + str(args.index) + '.json'
+sub_result = results_dir + '/result_' + str(args.index) + '.json'
 json_data = json.load(open(sub_result))
 samples = json_data["samples"]
 samples = {key: pd.DataFrame(samples[key]) for key in samples.keys()}
