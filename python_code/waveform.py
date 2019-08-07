@@ -154,7 +154,7 @@ def get_IMRPhenomD_comparison_waveform_generator(
     waveform_approximant = "IMRPhenomD"
     waveform_arguments = dict(
         waveform_approximant=waveform_approximant,
-        reference_frequency=minimum_frequency,
+        reference_frequency=20,
         minimum_frequency=minimum_frequency,
         maximum_frequency=maximum_frequency
     )
