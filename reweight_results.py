@@ -26,7 +26,7 @@ log_likelihoods = json_data["log_likelihoods"]
 maximum_frequency = 1024
 post_trigger_duration = 2
 deltaT = 0.2
-wf_minimum_frequency = 20
+wf_minimum_frequency = utils.minimum_frequency[args.event]
 
 # Read event-specific properties from the utils file
 sampling_frequency = utils.sampling_frequency[args.event]
