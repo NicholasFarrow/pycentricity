@@ -283,7 +283,7 @@ def new_weight(
         average_log_likelihood = np.mean(log_likelihood_grid)
         # Weight calculated using average likelihood
         log_weight = calculate_log_weight(log_likelihood_grid, recalculated_log_likelihood)
-        return e, average_log_likelihood, log_weight, log_likelihood_grid
+        return e, average_log_likelihood, log_weight
     else:
         return None, None, None
 
@@ -373,15 +373,8 @@ def reweight_by_eccentricity(
             output["eccentricity"].append(None)
             output["new_log_L"].append(None)
             output["log_weight"].append(None)
-            outfile.write(
-                str(i)
-                + "\t\t"
-                + str(None)
-                + "\t\t"
-                + str(None)
-                + "\t\t"
-                + str(None)
-                + "\n"
+            outfile.write("{}\t\t{}\t\t{}\t\t{}\n".format(i, None, None, None)
+
             )
         else:
             eccentricity, new_log_L, log_weight = new_weight(
