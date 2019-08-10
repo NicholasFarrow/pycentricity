@@ -278,12 +278,12 @@ def new_weight(
     if not disregard:
         cumulative_density_grid = cumulative_density_function(log_likelihood_grid)
         # We want to pick a weighted random point from within the CDF
-        e = pick_weighted_random_eccentricity(cumulative_density_grid, eccentricity_grid)
+        new_e = pick_weighted_random_eccentricity(cumulative_density_grid, eccentricity_grid)
         # Also return average log-likelihood
         average_log_likelihood = np.mean(log_likelihood_grid)
         # Weight calculated using average likelihood
         log_weight = calculate_log_weight(log_likelihood_grid, recalculated_log_likelihood)
-        return e, average_log_likelihood, log_weight
+        return new_e, average_log_likelihood, log_weight
     else:
         return None, None, None
 
