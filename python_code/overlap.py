@@ -466,6 +466,7 @@ def maximise_overlap(
         if count > 20:
             break
     # If that fails, we try the slow, rigorous method
+    '''
     if np.round(maximum_overlap, 2) < 0.99:
         new_time_shift, new_phase_shift, new_overlap = slow_overlap_optimize(
             time_shift,
@@ -484,6 +485,7 @@ def maximise_overlap(
             time_shift = new_time_shift
             phase_shift = new_phase_shift
     # Generate the waveforms to return
+    '''
     waveform_time_domain, waveform_frequency_domain = apply_shifts(
         waveform_time_domain, time_shift, phase_shift, sampling_frequency, frequency_array
     )

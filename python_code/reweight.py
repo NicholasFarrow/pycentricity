@@ -298,6 +298,8 @@ def reweight_by_eccentricity(
     output_folder=".",
     maximum_frequency=0,
     label="",
+    minimum_log_eccentricity=-4,
+    number_of_eccentricity_bins=20
 ):
     """
     Function to return a dictionary containing the eccentricity-marginalised log likelihood,
@@ -386,6 +388,8 @@ def reweight_by_eccentricity(
                 sampling_frequency,
                 maximum_frequency,
                 output_folder + "/" + label + "_" + str(i),
+                minimum_log_eccentricity=minimum_log_eccentricity,
+                number_of_eccentricity_bins=number_of_eccentricity_bins
             )
             outfile.write(
                 "{}\t\t{}\t\t{}\t\t{}\n".format(i, eccentricity, new_log_L, log_weight)
