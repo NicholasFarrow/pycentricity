@@ -1,6 +1,6 @@
 """
 
-A file for maximising overlaps for the pySEOBNRe package.
+A file for maximising overlaps for the pycentricity package.
 
 """
 
@@ -466,7 +466,6 @@ def maximise_overlap(
         if count > 20:
             break
     # Generate the waveforms to return
-    '''
     waveform_time_domain, waveform_frequency_domain = apply_shifts(
         waveform_time_domain, time_shift, phase_shift, sampling_frequency, frequency_array
     )

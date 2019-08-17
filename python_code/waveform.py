@@ -1,6 +1,6 @@
 """
 
-A file for generating waveforms and related objects for the pySEOBNRe package.
+A file for generating waveforms and related objects for the pycentricity package.
 
 """
 
@@ -8,6 +8,8 @@ import subprocess
 import matplotlib.pyplot as plt
 import time
 import bilby as bb
+
+import os
 
 
 def read_in_seobnre(filename):
@@ -55,8 +57,8 @@ def seobnre_bbh_with_spin_and_eccentricity(
             time-domain waveform polarisations
     """
     make = ["make"]
-    c_code = "/home/isobel.romero-shaw/public_html/pycentricity/c_code/"
-    #c_code = "/Users/irom0001/eccentricity/SEOBNRE/pycentricity/c_code/"
+    here = os.path.abspath(__file__)
+    c_code = here.replace("python_code/waveform.py", "c_code/")
     phiRef = parameters["phase"]
     m1 = parameters["mass_1"]
     m2 = parameters["mass_2"]
@@ -137,7 +139,8 @@ def seobnre_bbh_with_spin_and_eccentricity(
 
 
 def get_IMRPhenomD_comparison_waveform_generator(
-    minimum_frequency, sampling_frequency, duration, maximum_frequency=1024
+    minimum_frequency, sampling_frequency, duration,
+        maximum_frequency=1024, reference_frequency=20
 ):
     """
     Provide the waveform generator object for the comparison waveform, IMRPhenomD.
@@ -154,7 +157,7 @@ def get_IMRPhenomD_comparison_waveform_generator(
     waveform_approximant = "IMRPhenomD"
     waveform_arguments = dict(
         waveform_approximant=waveform_approximant,
-        reference_frequency=20,
+        reference_frequency=reference_frequency,
         minimum_frequency=minimum_frequency,
         maximum_frequency=maximum_frequency
     )
@@ -169,7 +172,7 @@ def get_IMRPhenomD_comparison_waveform_generator(
 
 def get_comparison_waveform_generator(
     minimum_frequency, sampling_frequency, duration,
-        maximum_frequency=1024, waveform_approximant="SEOBNRv1"
+        maximum_frequency=1024, reference_frequency=20, waveform_approximant="SEOBNRv1"
 ):
     """
     Provide the waveform generator object for the comparison waveform.
@@ -185,7 +188,7 @@ def get_comparison_waveform_generator(
     """
     waveform_arguments = dict(
         waveform_approximant=waveform_approximant,
-        reference_frequency=minimum_frequency,
+        reference_frequency=reference_frequency,
         minimum_frequency=minimum_frequency,
         maximum_frequency=maximum_frequency
     )

@@ -1,11 +1,13 @@
 """
 
-A file containing utility functions and related objects for the pySEOBNRe package.
+A file containing utility functions and related objects for the pycentricity package.
 
 """
 import numpy as np
 import matplotlib.pyplot as plt
 import corner
+
+import os
 
 
 def get_data(data_list):
@@ -38,7 +40,7 @@ def plot_reweighted_posteriors(posterior, new_weights, label, original_weights=N
     plt.clf()
 
 
-psd_files_base_path = "/home/isobel.romero-shaw/lvc_pe_sample_release/"
+psd_files_base_path = "{}/lvc_pe_sample_release/".format(os.path.expanduser("~"))
 
 parameter_keys = dict(
     chirp_mass='$\mathcal{M}$',
@@ -119,9 +121,10 @@ event_psd_file_path = dict(
         H1=psd_files_base_path + "O2/PE/GW170729/Median_PSD_H1.dat",
         L1=psd_files_base_path + "O2/PE/GW170729/Median_PSD_L1.dat",
     ),
+    # WARNING  ::  hardcoded path
     GW170809=dict(
-        H1="/home/isobel.romero-shaw/public_html/known_events/GW170809/dynesty_isobel_defaults/GW170809_LIGO_Hanford_PSD1Hz_psd.txt",
-        L1="/home/isobel.romero-shaw/public_html/known_events/GW170809/dynesty_isobel_defaults/GW170809_LIGO_Livingston_PSD1Hz_psd.txt",
+        H1="{}/public_html/known_events/GW170809/dynesty_isobel_defaults/GW170809_LIGO_Hanford_PSD1Hz_psd.txt".format(os.path.expanduser("~")),
+        L1="{}/public_html/known_events/GW170809/dynesty_isobel_defaults/GW170809_LIGO_Livingston_PSD1Hz_psd.txt".format(os.path.expanduser("~")),
     ),
     GW170814=dict(
         H1=psd_files_base_path + "O2/PE/GW170814/BayesWave_median_PSD_H1.dat",

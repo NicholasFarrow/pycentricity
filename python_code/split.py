@@ -1,6 +1,6 @@
 """
 
-A file for splitting a results file into the required subset for the pySEOBNRe package.
+A file for splitting a results file into the required subset for the pycentricity package.
 
 """
 

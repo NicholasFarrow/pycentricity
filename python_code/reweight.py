@@ -1,6 +1,6 @@
 """
 
-A file for reweighting non-SEOBNRe results using an SEOBNRe waveform for the pySEOBNRe package.
+A file for reweighting non-SEOBNRe results using an SEOBNRe waveform for the pycentricity package.
 
 """
 
@@ -11,7 +11,6 @@ import python_code.waveform as wf
 import numpy.random as random
 
 np.random.seed(3)
-minimum_eccentricity = 1e-4
 
 
 def log_likelihood_interferometer(
