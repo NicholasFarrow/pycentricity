@@ -465,25 +465,6 @@ def maximise_overlap(
         count += 1
         if count > 20:
             break
-    # If that fails, we try the slow, rigorous method
-    '''
-    if np.round(maximum_overlap, 2) < 0.99:
-        new_time_shift, new_phase_shift, new_overlap = slow_overlap_optimize(
-            time_shift,
-            time_limit,
-            phase_shift,
-            phase_limit,
-            waveform_time_domain,
-            comparison_waveform_frequency_domain,
-            frequency_array,
-            sampling_frequency,
-            PSD,
-            maximum_overlap=maximum_overlap,
-        )
-        if new_overlap > maximum_overlap:
-            maximum_overlap = new_overlap
-            time_shift = new_time_shift
-            phase_shift = new_phase_shift
     # Generate the waveforms to return
     '''
     waveform_time_domain, waveform_frequency_domain = apply_shifts(
@@ -496,85 +477,6 @@ def maximise_overlap(
         time_shift,
         phase_shift,
     )
-
-
-def slow_overlap_optimize(
-    time_shift,
-    time_limit,
-    phase_shift,
-    phase_limit,
-    waveform_time_domain,
-    comparison_waveform_frequency_domain,
-    frequency_array,
-    sampling_frequency,
-    PSD,
-    maximum_overlap=0,
-):
-    """
-    Slow, rigorous, reliable method for determining the maximum overlap.
-    :param time_shift: int
-        suggested initial optimal index shift
-    :param time_limit: int
-        absolute value of the symmetric index shift limit
-    :param phase_shift: float
-        suggested initial optimal phase shift
-    :param phase_limit:
-        absolute value of the symmetric phase shift limit
-    :param waveform_time_domain: dict
-        time-domain waveform polarisations
-    :param comparison_waveform_frequency_domain: dict
-        frequency-domain waveform polarisations of the comparison waveform
-    :param frequency_array: array
-        frequency array
-    :param sampling_frequency: int
-        frequency with which to 'sample' the waveform
-    :param PSD: PowerSpectralDensity
-        object that manages the detector Power Spectral Densities
-    :param maximum_overlap: float, 0
-        current maximum overlap
-    :return:
-        index_shift: int
-            index shift required for maximum overlap
-        phase_shift: float
-            phase shift required for maximum overlap
-        maximum_overlap: float
-            maximum overlap obtained
-    """
-    grid_size = 115
-    # Flat time grids, no repeats
-    phase_grid_init = np.linspace(-phase_limit, phase_limit, grid_size)
-    time_grid_init = np.linspace(-time_limit, time_limit, grid_size)
-    # Fourier transform
-    waveform_frequency_domain = fourier_transform(waveform_time_domain, sampling_frequency)
-    # Phase shift
-    waveform_grid_phase_shifted = [
-        apply_phase_shift_frequency_domain(waveform_frequency_domain, phase)
-        for phase in phase_grid_init
-    ]
-    waveform_grid_time_and_phase_shifted = [
-        [
-            apply_time_shift_frequency_domain(deepcopy(w), frequency_array, time)
-            for w in waveform_grid_phase_shifted
-        ] for time in time_grid_init
-    ]
-    overlap_grid = [
-        [
-            overlap_function(
-                comparison_waveform_frequency_domain, w[t], frequency_array, PSD
-            )
-            for w in waveform_grid_time_and_phase_shifted
-        ]
-        for t in range(grid_size)
-    ]
-
-    new_overlap = np.amax(overlap_grid)
-    if new_overlap > maximum_overlap:
-        maximum_overlap = new_overlap
-        max_index = np.where(overlap_grid == maximum_overlap)
-        max_index = max_index[0][0], max_index[1][0]
-        time_shift = time_grid_init[max_index[0]]
-        phase_shift = phase_grid_init[max_index[1]]
-    return time_shift, phase_shift, maximum_overlap
 
 
 def fast_overlap_optimize(
