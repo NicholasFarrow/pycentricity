@@ -13,6 +13,7 @@ parser.add_argument("-i", "--index", help="")
 parser.add_argument("-e", "--eccentricity", help="The eccentricity of the injection")
 parser.add_argument("-s", "--snr", help="The snr of the injection")
 parser.add_argument("-r", "--results", help="The location of the result subsets")
+parser.add_argument("-n", "--number-of-eccentricity-bins", help="The number of eccentricity bins", default=20)
 args = parser.parse_args()
 
 # Read in the arguments
@@ -20,9 +21,10 @@ eccentricity = args.eccentricity
 index = args.index
 snr = args.snr
 results_dir = args.results
+number_of_eccentricity_bins = int(args.number_of_eccentricity_bins)
 
 np.random.seed(5432)
-injection_data_dir = 'injection_data/'
+injection_data_dir = '/home/isobel.romero-shaw/public_html/pycentricity/injection_data/'
 
 # Frequency settings
 minimum_frequency = 20
@@ -77,7 +79,7 @@ folder_list = sub_result.split("/")
 folder = ""
 for string in folder_list[0:-2]:
     folder += string + "/"
-folder += "weights/"
+folder += "weights_" + str(number_of_eccentricity_bins) + "/"
 bb.core.utils.check_directory_exists_and_if_not_mkdir(folder)
 label = folder_list[-1].split(".")[0]
 output = rwt.reweight_by_eccentricity(
@@ -90,5 +92,6 @@ output = rwt.reweight_by_eccentricity(
         folder,
         maximum_frequency,
         label=label,
+        number_of_eccentricity_bins=number_of_eccentricity_bins
 )
 print("Results weighted for file " + sub_result)
