@@ -65,7 +65,8 @@ folder_list = args.sub_result.split("/")
 folder = ""
 for string in folder_list[0:-2]:
     folder += string + "/"
-folder += "weights/"
+number_of_eccentricity_bins = 40
+folder += "weights_{}/".format(number_of_eccentricity_bins)
 bb.core.utils.check_directory_exists_and_if_not_mkdir(folder)
 label = folder_list[-1].split(".")[0]
 output = rwt.reweight_by_eccentricity(
@@ -78,5 +79,6 @@ output = rwt.reweight_by_eccentricity(
     folder,
     maximum_frequency,
     label=label,
+    number_of_eccentricity_bins=number_of_eccentricity_bins
 )
 print("Results weighted for file " + args.sub_result + " for event " + args.event)
