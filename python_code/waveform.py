@@ -10,6 +10,15 @@ import time
 import bilby as bb
 
 import os
+import ctypes
+
+
+def test_read_c_output(
+        parameters, sampling_frequency, minimum_frequency, maximum_frequency=0
+):
+    here = os.path.abspath(__file__)
+    c_code = here.replace("python_code/waveform.py", "c_code/")
+    panyimain_elip = ctypes.CDLL("{}/{}".format(c_code, "Panyimain"))
 
 
 def read_in_seobnre(filename):
@@ -75,7 +84,12 @@ def seobnre_bbh_with_spin_and_eccentricity(
     s2y = 0
     s2x = 0
     # Create outfile
-    outfile_name = "simulation_" + "{}_{}_{}_{}_{}_{}_{}_{}_{}.dat".format(
+    # Try to look for node space if on a cluster
+    outdir = c_code
+    if os.path.isdir("/usr1"):
+        user = here.split("/")[2]
+        outdir = "/usr1/{}/".format(user)
+    outfile_name = "{}/simulation_".format(outdir) + "{}_{}_{}_{}_{}_{}_{}_{}_{}.dat".format(
         m1, m2, distance, phiRef, e0, inclination, s1z, s2z, time.clock()
     )
     # Generate the SEOBNRe time-domain waveform
@@ -113,7 +127,7 @@ def seobnre_bbh_with_spin_and_eccentricity(
     ).wait()
     try:
         # Read in the time-domain waveform
-        t, seobnre = read_in_seobnre(c_code + outfile_name)
+        t, seobnre = read_in_seobnre(outfile_name)
         # Plot if requested
         if plot:
             fig = plt.figure()
