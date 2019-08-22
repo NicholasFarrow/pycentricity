@@ -350,7 +350,7 @@ def reweight_by_eccentricity(
             phase=converted_samples["phase"][i][0],
             chi_1=converted_samples["chi_1"][i][0],
             chi_2=converted_samples["chi_2"][i][0],
-            eccentricity=minimum_eccentricity,
+            eccentricity=np.power(10, minimum_log_eccentricity),
         )
         for i in range(number_of_samples)
     ]
