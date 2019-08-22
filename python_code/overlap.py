@@ -452,12 +452,11 @@ def maximise_overlap(
             sampling_frequency,
             PSD
         )
-        time_shift_guess = random.random() * (
-            time_shift_guess - 2 * time_shift_guess
-        )
-        phase_shift_guess = random.random() * (
-            phase_shift_guess - 2 * phase_shift_guess
-        )
+        # Need to select another random point within the range.
+        # Time shift is centered at zero between - time_limit and + time_limit
+        time_shift_guess = (random.random() * 2 * time_limit) - time_limit
+        # Phase shift is centered at zero between - phase_limit and + phase_limit
+        phase_shift_guess = (random.random() * 2 * phase_limit) - phase_limit
         if new_overlap > maximum_overlap:
             maximum_overlap = new_overlap
             time_shift = new_time_shift
