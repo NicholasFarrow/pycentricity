@@ -154,7 +154,7 @@ def seobnre_bbh_with_spin_and_eccentricity(
 
 def get_IMRPhenomD_comparison_waveform_generator(
     minimum_frequency, sampling_frequency, duration,
-        maximum_frequency=1024, reference_frequency=20
+        maximum_frequency=1024, reference_frequency=10
 ):
     """
     Provide the waveform generator object for the comparison waveform, IMRPhenomD.
@@ -186,7 +186,7 @@ def get_IMRPhenomD_comparison_waveform_generator(
 
 def get_comparison_waveform_generator(
     minimum_frequency, sampling_frequency, duration,
-        maximum_frequency=1024, reference_frequency=20, waveform_approximant="SEOBNRv1"
+        maximum_frequency=1024, reference_frequency=10, waveform_approximant="SEOBNRv1"
 ):
     """
     Provide the waveform generator object for the comparison waveform.
