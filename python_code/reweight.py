@@ -9,6 +9,7 @@ import numpy as np
 import python_code.overlap as ovlp
 import python_code.waveform as wf
 import numpy.random as random
+import time
 
 np.random.seed(3)
 
@@ -244,14 +245,20 @@ def new_weight(
     # Prepare for the possibility that we have to disregard this sample
     disregard = False
     for e in eccentricity_grid:
+        startTime = time.time()
+        print("\n\n\n")
+        print("Calculating for e={}".format(e))
+
         parameters.update({"eccentricity": e})
         # Need to have a set minimum frequency, since this is also the reference frequency
         t, seobnre_waveform_time_domain = wf.seobnre_bbh_with_spin_and_eccentricity(
             parameters=parameters,
             sampling_frequency=sampling_frequency,
-            minimum_frequency=10,
+            minimum_frequency=30,
             maximum_frequency=maximum_frequency + 1000,
         )
+        print("waveform generated in {} seconds.".format(time.time()-startTime))
+        startTime = time.time()
         if t is None:
             print('No waveform generated; disregard sample {}'.format(label))
             intermediate_outfile.write(
@@ -273,6 +280,8 @@ def new_weight(
             intermediate_outfile.write(
                 "{}\t\t{}\t\t{}\n".format(e, eccentric_log_L, max_overlap)
             )
+            print("Overlap calculation took {} seconds, overlap={}".format(time.time() - startTime, max_overlap))
+
     intermediate_outfile.close()
     if not disregard:
         cumulative_density_grid = cumulative_density_function(log_likelihood_grid)
@@ -334,7 +343,7 @@ def reweight_by_eccentricity(
     converted_samples = {
         key: converted_samples[key].values.tolist()
         for key in converted_samples.keys()
-        if type(converted_samples[key]) is not float
+        if type(converted_samples[key]) not in [float, int]
     }
     # List of parameters - this will be what we use to compute the highest overlap
     parameter_list = [
@@ -351,9 +360,13 @@ def reweight_by_eccentricity(
             chi_1=converted_samples["chi_1"][i][0],
             chi_2=converted_samples["chi_2"][i][0],
             eccentricity=np.power(10.0, minimum_log_eccentricity),
+            #lambda_1=0.0,
+            #lambda_2=0.0
         )
         for i in range(number_of_samples)
     ]
+    print("Example parameter list:")
+    print(parameter_list[0])
     # Generate the IMRPhenomD waveform for each sample
     comparison_waveform_strain_list = [
         comparison_waveform_generator.frequency_domain_strain(parameters)

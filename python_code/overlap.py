@@ -440,7 +440,8 @@ def maximise_overlap(
     time_shift = time_shift_guess
     phase_shift = phase_shift_guess
     # First we hope to do this with the quick, dynamic method
-    while np.round(maximum_overlap, 2) < 0.99:
+    while maximum_overlap < 0.99:
+        print("Tried {} times to maximize overlap, current overlap {}".format(count, maximum_overlap))
         new_time_shift, new_phase_shift, new_overlap = fast_overlap_optimize(
             time_shift_guess,
             time_limit,
