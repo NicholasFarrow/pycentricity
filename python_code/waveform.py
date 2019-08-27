@@ -10,15 +10,6 @@ import time
 import bilby as bb
 
 import os
-import ctypes
-
-
-def test_read_c_output(
-        parameters, sampling_frequency, minimum_frequency, maximum_frequency=0
-):
-    here = os.path.abspath(__file__)
-    c_code = here.replace("python_code/waveform.py", "c_code/")
-    panyimain_elip = ctypes.CDLL("{}/{}".format(c_code, "Panyimain"))
 
 
 def read_in_seobnre(filename):
@@ -68,7 +59,7 @@ def seobnre_bbh_with_spin_and_eccentricity(
     make = ["make"]
     here = os.path.abspath(__file__)
     c_code = here.replace("python_code/waveform.py", "c_code/")
-    phiRef = parameters["phase"]
+    phiRef = parameters["psi"]
     m1 = parameters["mass_1"]
     m2 = parameters["mass_2"]
     f_min = minimum_frequency
@@ -89,6 +80,13 @@ def seobnre_bbh_with_spin_and_eccentricity(
     if os.path.isdir("/usr1"):
         user = here.split("/")[2]
         outdir = "/usr1/{}/".format(user)
+    else:
+        print(
+            "WARNING :: No /usr1/ directory found; waveforms will be temporarily stored in {}".format(outdir)
+        )
+        print(
+            "WARNING :: This will cause the code to run slowly."
+        )
     outfile_name = "{}/simulation_".format(outdir) + "{}_{}_{}_{}_{}_{}_{}_{}_{}.dat".format(
         m1, m2, distance, phiRef, e0, inclination, s1z, s2z, time.clock()
     )
@@ -189,7 +187,8 @@ def get_comparison_waveform_generator(
         maximum_frequency=1024, reference_frequency=20, waveform_approximant="SEOBNRv1"
 ):
     """
-    Provide the waveform generator object for the comparison waveform.
+    Provide the waveform generator object for the comparison waveform,
+    which can be generically chosen.
     :param minimum_frequency: int
         minimum frequency to contain in the waveform
     :param sampling_frequency: int

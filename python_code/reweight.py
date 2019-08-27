@@ -11,8 +11,6 @@ import python_code.waveform as wf
 import numpy.random as random
 import time
 
-np.random.seed(3)
-
 
 def log_likelihood_interferometer(
     waveform_polarizations, interferometer, parameters, duration
@@ -168,7 +166,7 @@ def cumulative_density_function(log_likelihood_grid):
     cumulative_density: array
         1D grid of cumulative densities
     """
-    # IRS - (temporary?) edits to deal with extremely high values of log likelihood
+    # Deal with extremely high values of log likelihood
     maximum_log_likelihood = np.max(log_likelihood_grid)
     # Ratio of likelihood to maximum log likelihood
     log_likelihood_grid = log_likelihood_grid - maximum_log_likelihood
@@ -188,7 +186,9 @@ def new_weight(
     maximum_frequency,
     label,
     minimum_log_eccentricity=-4,
-    number_of_eccentricity_bins=20
+    maximum_log_eccentricity=np.log10(0.2),
+    number_of_eccentricity_bins=20,
+    reference_frequency=10
 ):
     """
     Compute the new weight for a point, weighted by the eccentricity-marginalised likelihood.
@@ -208,6 +208,14 @@ def new_weight(
         the maximum frequency at which the data is analysed
     :param label: str
         identifier for results
+    :param minimum_log_eccentricity: float
+        minimum eccentricity to look for
+    :param maximum_log_eccentricity: float
+        maximum log eccentricity to look for
+    :param number_of_eccentricity_bins: int
+        granularity of search in eccentricity space
+    :param reference_frequency: float
+        frequency at which to measure eccentricity
     :return:
         e: float
             the new eccentricity sample
@@ -219,7 +227,7 @@ def new_weight(
     # First calculate a grid of likelihoods.
     grid_size = number_of_eccentricity_bins
     eccentricity_grid = np.logspace(
-        minimum_log_eccentricity, np.log10(0.2), grid_size
+        minimum_log_eccentricity, maximum_log_eccentricity, grid_size
     )
     # Recalculate the log likelihood of the original sample
     recalculated_log_likelihood = log_likelihood_ratio(
@@ -239,7 +247,7 @@ def new_weight(
     intermediate_outfile = open("{}_eccentricity_result.txt".format(label), "w")
     intermediate_outfile.write("sample parameters:\n")
     for key in parameters.keys():
-        intermediate_outfile.write(key + ":\t" + str(parameters[key]) + "\n")
+        intermediate_outfile.write("{}:\t{}\n".format(key, parameters[key]))
     intermediate_outfile.write("\n-------------------------\n")
     intermediate_outfile.write("e\t\tlog_L\t\tmaximised_overlap\n")
     # Prepare for the possibility that we have to disregard this sample
@@ -254,7 +262,7 @@ def new_weight(
         t, seobnre_waveform_time_domain = wf.seobnre_bbh_with_spin_and_eccentricity(
             parameters=parameters,
             sampling_frequency=sampling_frequency,
-            minimum_frequency=30,
+            minimum_frequency=reference_frequency,
             maximum_frequency=maximum_frequency + 1000,
         )
         print("waveform generated in {} seconds.".format(time.time()-startTime))
@@ -288,7 +296,7 @@ def new_weight(
         # We want to pick a weighted random point from within the CDF
         new_e = pick_weighted_random_eccentricity(cumulative_density_grid, eccentricity_grid)
         # Also return average log-likelihood
-        average_log_likelihood = np.mean(log_likelihood_grid)
+        average_log_likelihood = np.log(np.sum(np.exp(log_likelihood_grid)) / len(log_likelihood_grid))
         # Weight calculated using average likelihood
         log_weight = calculate_log_weight(log_likelihood_grid, recalculated_log_likelihood)
         return new_e, average_log_likelihood, log_weight
@@ -307,7 +315,9 @@ def reweight_by_eccentricity(
     maximum_frequency=0,
     label="",
     minimum_log_eccentricity=-4,
-    number_of_eccentricity_bins=20
+    maximum_log_eccentricity=np.log10(0.2),
+    number_of_eccentricity_bins=20,
+    reference_frequency=10
 ):
     """
     Function to return a dictionary containing the eccentricity-marginalised log likelihood,
@@ -332,6 +342,14 @@ def reweight_by_eccentricity(
         the maximum frequency of the analysis
     :param label: str
         identifier for results
+    :param minimum_log_eccentricity: float
+        minimum eccentricity to look for
+    :param maximum_log_eccentricity: float
+        maximum log eccentricity to look for
+    :param number_of_eccentricity_bins: int
+        granularity of search in eccentricity space
+    :param reference_frequency: float
+        frequency at which to measure eccentricity
     :return:
         output: dict
             dictionary of output from the reweighting procedure
@@ -374,15 +392,16 @@ def reweight_by_eccentricity(
     ]
     output = {key: [] for key in ["eccentricity", "new_log_L", "log_weight"]}
     # Write the output file along the way
-    outfile = open(output_folder + "/" + label + "_master_output_store.txt", "w")
+    outfile = open("{}/{}_master_output_store.txt".format(output_folder, label), "w")
     outfile.write("i\t\te\t\tnew_log_L\t\tlog_w\n")
     for i, log_L in enumerate(log_likelihood):
         # If the spins are too large, the sample may fail to generate eccentric waveforms,
         # so we impose a moderate-spin prior here
         if any([parameter_list[i]['chi_1'] > 0.6, parameter_list[i]['chi_2'] > 0.6]):
             print(
-                    'omitting sample; chi_1 = ' + str(parameter_list[i]['chi_1'])
-                    + ', chi_2 = ' + str(parameter_list[i]['chi_2'])
+                    'omitting sample; chi_1 = {}, chi_2 = {}'.format(
+                        parameter_list[i]['chi_1'], parameter_list[i]['chi_2']
+                    )
             )
             output["eccentricity"].append(None)
             output["new_log_L"].append(None)
@@ -399,9 +418,11 @@ def reweight_by_eccentricity(
                 duration,
                 sampling_frequency,
                 maximum_frequency,
-                output_folder + "/" + label + "_" + str(i),
+                "{}/{}_{}".format(output_folder, label, i),
                 minimum_log_eccentricity=minimum_log_eccentricity,
-                number_of_eccentricity_bins=number_of_eccentricity_bins
+                maximum_log_eccentricity=maximum_log_eccentricity,
+                number_of_eccentricity_bins=number_of_eccentricity_bins,
+                reference_frequency=reference_frequency
             )
             outfile.write(
                 "{}\t\t{}\t\t{}\t\t{}\n".format(i, eccentricity, new_log_L, log_weight)
