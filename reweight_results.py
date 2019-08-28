@@ -91,6 +91,7 @@ output = rwt.reweight_by_eccentricity(
     folder,
     maximum_frequency,
     label=label,
-    number_of_eccentricity_bins=number_of_eccentricity_bins
+    number_of_eccentricity_bins=number_of_eccentricity_bins,
+    reference_frequency=30
 )
 print("Results weighted for file " + args.sub_result + " for event " + args.event)
