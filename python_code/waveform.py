@@ -177,7 +177,7 @@ def get_IMRPhenomD_comparison_waveform_generator(
         duration=duration,
         sampling_frequency=sampling_frequency,
         frequency_domain_source_model=bb.gw.source.lal_binary_black_hole,
-        parameter_conversion=bb.gw.conversion.convert_to_lal_binary_black_hole,
+        parameter_conversion=bb.gw.conversion.convert_to_lal_binary_black_hole_parameters,
         waveform_arguments=waveform_arguments,
     )
     return waveform_generator

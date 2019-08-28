@@ -1,6 +1,9 @@
-#!/home/nicholas.farrow/anaconda3/bin/python3 -u
+#!/home/nicholas.farrow/anaconda3/bin/python3.6 -u
+import sys
+print("Working from {}".format(sys.path))
 print("Importing bilby...")
 import bilby as bb
+sys.stdout.flush()
 print("Imported bilby")
 import pandas as pd
 
@@ -56,7 +59,7 @@ psd_dict = {'L1': '/home/nicholas.farrow/public_html/gwInference/newROQ/GW190425
 for ifo in interferometers:
     psd_file = psd_dict[ifo.name]
     ifo.set_strain_data_from_csv(
-        '/home/nicholas.farrow/public_html/gwInference/pycentricity/submissions/'
+        '/home/nicholas.farrow/public_html/gwInference/pycentricity2/submissions/'
         + args.event + '/event_data/' + ifo.name + '_time_domain_strain_data.csv'
     )
     
@@ -74,7 +77,7 @@ folder = ""
 for string in folder_list[0:-2]:
     folder += string + "/"
 number_of_eccentricity_bins = 10 
-folder += "weights_{}/".format(number_of_eccentricity_bins)
+folder += "weightsRun_{}/".format(number_of_eccentricity_bins)
 bb.core.utils.check_directory_exists_and_if_not_mkdir(folder)
 label = folder_list[-1].split(".")[0]
 print("Reweighting samples...")
