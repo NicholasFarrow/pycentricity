@@ -6,6 +6,7 @@ import bilby as bb
 sys.stdout.flush()
 print("Imported bilby")
 import pandas as pd
+import numpy as np
 
 import python_code.utils as utils
 import python_code.reweight as rwt
@@ -76,8 +77,8 @@ folder_list = args.sub_result.split("/")
 folder = ""
 for string in folder_list[0:-2]:
     folder += string + "/"
-number_of_eccentricity_bins = 10 
-folder += "weightsRun_{}/".format(number_of_eccentricity_bins)
+number_of_eccentricity_bins = 30 
+folder += "weightsRunFiner_{}/".format(number_of_eccentricity_bins)
 bb.core.utils.check_directory_exists_and_if_not_mkdir(folder)
 label = folder_list[-1].split(".")[0]
 print("Reweighting samples...")
@@ -92,6 +93,7 @@ output = rwt.reweight_by_eccentricity(
     maximum_frequency,
     label=label,
     number_of_eccentricity_bins=number_of_eccentricity_bins,
-    reference_frequency=30
+    reference_frequency=30,
+    maximum_log_eccentricity=np.log10(0.01)
 )
 print("Results weighted for file " + args.sub_result + " for event " + args.event)
