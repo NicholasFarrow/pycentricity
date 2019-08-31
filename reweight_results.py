@@ -94,6 +94,6 @@ output = rwt.reweight_by_eccentricity(
     label=label,
     number_of_eccentricity_bins=number_of_eccentricity_bins,
     reference_frequency=30,
-    maximum_log_eccentricity=np.log10(0.01)
+    maximum_log_eccentricity=np.log10(0.1)
 )
 print("Results weighted for file " + args.sub_result + " for event " + args.event)
